@@ -5,14 +5,23 @@ using System.Collections;
 public class PlayerController : MonoBehaviour {
 
 	public float speed;
+
 	public GameObject missileParent;
 	public GameObject bullet;
+
 	public Light spotLight;
+
 	public Text missileText;
 	public Text scoreText;
 	public Text fuelText;
 	public Text ammoText;
 	public Text shieldText;
+
+	public float maxZSpeed;
+	public float minZSpeed;
+	public float baseZSpeed;
+
+	public Camera mainCamera;
 
 	private Rigidbody rb;
 
@@ -32,6 +41,9 @@ public class PlayerController : MonoBehaviour {
 	private float maxAmmo, ammo;
 	private bool firing;
 
+	private float zSpeed;
+	private Vector3 cameraOffset;
+
 	// Use this for initialization
 	void Start () {
 		lMissile = rMissile = null;
@@ -46,9 +58,14 @@ public class PlayerController : MonoBehaviour {
 		maxFuel = fuel = 10000.0f;
 		updateFuelText ();
 		maxShields = shields = 500.0f;
-		updateShieldsText ();
+		updateShields (0.0f);
 		maxAmmo = ammo = 800.0f;
 		updateAmmoText ();
+		zSpeed = baseZSpeed;
+
+		cameraOffset = new Vector3 (0.0f, 
+			this.transform.position.y - mainCamera.transform.position.y,
+			this.transform.position.z - mainCamera.transform.position.z);
 	}
 	
 	// Update is called once per frame
@@ -89,11 +106,34 @@ public class PlayerController : MonoBehaviour {
 			fireBullets ();
 		}
 
-		score += 10;
+		float speedChange = Input.GetAxis ("Vertical");
+		if (speedChange > 0) {
+			zSpeed += 0.002f;
+			if (zSpeed >= maxZSpeed) {
+				zSpeed = maxZSpeed;
+			}
+		} else if (speedChange < 0) {
+			zSpeed -= 0.002f;
+			if (zSpeed <= minZSpeed) {
+				zSpeed = minZSpeed;
+			}
+		} else {
+			if (zSpeed > baseZSpeed) {
+				zSpeed -= 0.002f;
+			} else if (zSpeed < baseZSpeed) {
+				zSpeed += 0.002f;
+			}
+		}
+
+		score += Mathf.RoundToInt(10 * (zSpeed / baseZSpeed));
 		updateScoreText ();
 
-		fuel-=1;
+		fuel-= Mathf.RoundToInt(1 * (zSpeed / baseZSpeed));
 		updateFuelText ();
+
+		this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y, this.transform.position.z + zSpeed);
+
+		mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, this.transform.position.z - cameraOffset.z);
 	}
 
 	void FixedUpdate(){
@@ -118,18 +158,15 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if (other.gameObject.CompareTag ("Missile Refill Wall")) {
-			missileText.text = "You crashed...";
+			updateShields (maxShields * -1); 
 		}
 
 		if (other.gameObject.CompareTag ("Enemy")) {
 			EnemyController ec = other.GetComponent<EnemyController> ();
-			shields -= ec.health;
 			ec.explode ();
-			if (shields <= 0) {
-				shields = 0;
-			}
 
-			updateShieldsText ();
+			updateShields (ec.health * -1.0f);
+			addScore (ec.score);
 		}
 	}
 
@@ -150,7 +187,12 @@ public class PlayerController : MonoBehaviour {
 		fuelText.text = "Fuel: " + Mathf.Round ((fuel / maxFuel) * 100).ToString () + "%";
 	}
 
-	void updateShieldsText(){
+	void updateShields(float update){
+		shields += update;
+		if (shields <= 0) {
+			shields = 0;
+			explode ();
+		}
 		shieldText.text = "Shields: " + Mathf.Round ((shields / maxShields) * 100).ToString () + "%";
 	}
 
@@ -162,10 +204,10 @@ public class PlayerController : MonoBehaviour {
 		if (!firing) {
 			if (ammo >= 2) {
 				GameObject lBullet = GameObject.Instantiate (bullet);
-				lBullet.transform.position = new Vector3 (this.transform.position.x - 0.05f, this.transform.position.y, this.transform.position.z + 0.25f);
+				lBullet.transform.position = new Vector3 (this.transform.position.x - 0.1f, this.transform.position.y, this.transform.position.z + 0.25f);
 				lBullet.GetComponent<BulletController> ().player = this.gameObject;
 				GameObject rBullet = GameObject.Instantiate (bullet);
-				rBullet.transform.position = new Vector3 (this.transform.position.x + 0.05f, this.transform.position.y, this.transform.position.z + 0.25f);
+				rBullet.transform.position = new Vector3 (this.transform.position.x + 0.1f, this.transform.position.y, this.transform.position.z + 0.25f);
 				rBullet.GetComponent<BulletController> ().player = this.gameObject;
 				ammo -= 2;
 				updateAmmoText ();
@@ -173,6 +215,11 @@ public class PlayerController : MonoBehaviour {
 				StartCoroutine ("reload");
 			}
 		}
+	}
+
+	void explode(){
+		this.gameObject.SetActive (false);
+		spotLight.gameObject.SetActive (false);
 	}
 
 	IEnumerator reload(){
