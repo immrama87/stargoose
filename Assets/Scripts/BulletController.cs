@@ -39,4 +39,8 @@ public class BulletController : MonoBehaviour {
 			Destroy (this.gameObject);
 		}
 	}
+
+	public void setSpeed(float s){
+		rb.velocity = new Vector3 (0.0f, 0.0f, s);
+	}
 }

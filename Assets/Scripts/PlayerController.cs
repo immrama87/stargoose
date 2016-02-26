@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour {
 	public float baseZSpeed;
 
 	public Camera mainCamera;
+	public GameObject walls;
 
 	private Rigidbody rb;
 
@@ -133,7 +134,8 @@ public class PlayerController : MonoBehaviour {
 
 		this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y, this.transform.position.z + zSpeed);
 
-		mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, this.transform.position.z - cameraOffset.z);
+		mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, this.transform.position.z - cameraOffset.z);;
+		walls.transform.position = new Vector3(walls.transform.position.x, walls.transform.position.y, this.transform.position.z);
 	}
 
 	void FixedUpdate(){
@@ -162,7 +164,7 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if (other.gameObject.CompareTag ("Enemy")) {
-			EnemyController ec = other.GetComponent<EnemyController> ();
+			EnemyController ec = other.GetComponent(typeof(EnemyController)) as EnemyController;
 			ec.explode ();
 
 			updateShields (ec.health * -1.0f);
