@@ -144,10 +144,10 @@ public class PlayerController : MonoBehaviour {
 		rb.AddForce (movement, ForceMode.Impulse);
 
 		if (lMissile != null) {
-			lMissile.transform.position = new Vector3 (this.transform.position.x-0.2f, 0.2f, 0.0f);
+			lMissile.transform.position = new Vector3 (this.transform.position.x-0.2f, 0.2f, this.transform.position.z);
 		}
 		if (rMissile != null) {
-			rMissile.transform.position = new Vector3 (this.transform.position.x + 0.2f, 0.2f, 0.0f);
+			rMissile.transform.position = new Vector3 (this.transform.position.x + 0.2f, 0.2f, this.transform.position.z);
 		}
 
 		spotLight.transform.position = this.transform.position - lightOffset;
@@ -189,7 +189,7 @@ public class PlayerController : MonoBehaviour {
 		fuelText.text = "Fuel: " + Mathf.Round ((fuel / maxFuel) * 100).ToString () + "%";
 	}
 
-	void updateShields(float update){
+	public void updateShields(float update){
 		shields += update;
 		if (shields <= 0) {
 			shields = 0;
@@ -206,10 +206,10 @@ public class PlayerController : MonoBehaviour {
 		if (!firing) {
 			if (ammo >= 2) {
 				GameObject lBullet = GameObject.Instantiate (bullet);
-				lBullet.transform.position = new Vector3 (this.transform.position.x - 0.1f, this.transform.position.y, this.transform.position.z + 0.25f);
+				lBullet.transform.position = new Vector3 (this.transform.position.x - 0.1f, this.transform.position.y, this.transform.position.z + 0.5f);
 				lBullet.GetComponent<BulletController> ().player = this.gameObject;
 				GameObject rBullet = GameObject.Instantiate (bullet);
-				rBullet.transform.position = new Vector3 (this.transform.position.x + 0.1f, this.transform.position.y, this.transform.position.z + 0.25f);
+				rBullet.transform.position = new Vector3 (this.transform.position.x + 0.1f, this.transform.position.y, this.transform.position.z + 0.5f);
 				rBullet.GetComponent<BulletController> ().player = this.gameObject;
 				ammo -= 2;
 				updateAmmoText ();

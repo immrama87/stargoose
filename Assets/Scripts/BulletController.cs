@@ -35,12 +35,17 @@ public class BulletController : MonoBehaviour {
 			}
 		}
 
+		if (other.gameObject.CompareTag ("Player")) {
+			PlayerController pc = other.gameObject.GetComponent<PlayerController> ();
+			pc.updateShields (-5.0f);
+		}
+
 		if (!other.gameObject.CompareTag ("Missile Refill")) {
 			Destroy (this.gameObject);
 		}
 	}
 
 	public void setSpeed(float s){
-		rb.velocity = new Vector3 (0.0f, 0.0f, s);
+		this.speed = s;
 	}
 }

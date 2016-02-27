@@ -20,7 +20,8 @@ public class MachineGunOrbController : EnemyController {
 		if (re.IsVisibleFrom (Camera.main)) {
 			transform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z - speed);
 
-			if (player.transform.position.x - (player.transform.lossyScale.x / 2) > transform.position.x) {
+			if (player.transform.position.x - (player.transform.localScale.x / 2) < transform.position.x &&
+				player.transform.position.x + (player.transform.localScale.x / 2) > transform.position.x) {
 				fireBullets ();
 			}
 		}
@@ -28,15 +29,18 @@ public class MachineGunOrbController : EnemyController {
 
 	private void fireBullets(){
 		if (!firing) {
+			Debug.Log ("Fired.");
 			GameObject _bullet = GameObject.Instantiate (bullet);
-			_bullet.transform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z - 0.25f);
-			_bullet.GetComponent<BulletController> ().setSpeed(-7.0f);
+			_bullet.transform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z - 0.5f);
+			_bullet.GetComponent<BulletController> ().setSpeed(-10.0f);
 			firing = true;
+
+			StartCoroutine ("reload");
 		}
 	}
 
 	private IEnumerator reload(){
-		yield return new WaitForSeconds (0.5f);
+		yield return new WaitForSeconds (0.05f);
 		firing = false;
 	}
 }
