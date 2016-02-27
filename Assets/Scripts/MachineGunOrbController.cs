@@ -31,7 +31,7 @@ public class MachineGunOrbController : EnemyController {
 		if (!firing) {
 			GameObject _bullet = GameObject.Instantiate (bullet);
 			_bullet.transform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z - 0.5f);
-			_bullet.GetComponent<BulletController> ().setSpeed(-10.0f);
+			_bullet.GetComponent<BulletController> ().setVelocity(0.0f, 0.0f, -10.0f);
 			firing = true;
 
 			StartCoroutine ("reload");

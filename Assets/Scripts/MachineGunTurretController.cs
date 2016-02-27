@@ -20,7 +20,7 @@ public class MachineGunTurretController : TurretController {
 		if (player.transform.position.z < transform.position.z) {
 			float angle = calculateAngle ();
 
-			if (re.IsVisibleFrom(Camera.main) && (angle != 0.0f || player.transform.position.x == transform.position.x)) {
+			if (re.IsVisibleFrom(Camera.main)) {
 				fireBullets (angle);
 			}
 		}
@@ -29,8 +29,21 @@ public class MachineGunTurretController : TurretController {
 	void fireBullets(float angle){
 		if (!firing) {
 			GameObject _bullet = GameObject.Instantiate (bullet);
-			_bullet.transform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z - 0.5f);
-			_bullet.GetComponent<BulletController> ().setSpeed (-10.0f);
+			float xPos = 0.0f;
+			float zPos = 0.0f;
+			if (angle != 0) {
+				xPos = 0.5f;
+			}
+			if (angle < 0) {
+				xPos *= -1;
+			}
+			if (Mathf.Abs(angle) != 90.0f) {
+				zPos = 0.5f;
+			}
+
+			_bullet.transform.localEulerAngles = new Vector3 (0.0f, angle, 0.0f);
+			_bullet.transform.position = new Vector3 (transform.position.x - xPos, transform.position.y + 0.4f, transform.position.z - zPos);
+			_bullet.GetComponent<BulletController> ().setVelocity (-10.0f, angle);
 			firing = true;
 
 			StartCoroutine ("reload");

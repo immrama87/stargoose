@@ -1,46 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MissileController : MonoBehaviour {
+public class MissileController : ProjectileController {
 
 	public float speed;
 	public Light engine;
 	public GameObject player;
 
-	private bool fired;
-	private bool exploding;
-	private Rigidbody rb;
-	private Renderer re;
 	private Vector3 engineOffset;
 
 	// Use this for initialization
 	void Start () {
-		fired = false; 
-		exploding = false;
-		rb = GetComponent<Rigidbody> ();
-		re = GetComponent<Renderer> ();
+		initComponents ();
 		engineOffset = this.transform.position - engine.transform.position;
 		engine.gameObject.SetActive (false);
 	}
 
-	void FixedUpdate(){
-		if (fired) {
-			rb.AddForce (new Vector3 (0.0f, 0.0f, 1.0f * speed));
+	protected override void customOnFixedUpdate(){
+		engine.transform.position = this.transform.position - engineOffset;
+	}
 
-			engine.transform.position = this.transform.position - engineOffset;
-
-			if (!re.IsVisibleFrom(Camera.main)) {
-				StartCoroutine ("waitToDestroy");
-			}
-		}
+	protected override void gracefulDestroy(){
+		StartCoroutine ("waitToDestroy");
 	}
 
 	void OnTriggerEnter(Collider other){
 		bool stop = false;
 		if (other.gameObject.CompareTag ("Enemy")) {
 			if (player != null) {
-				player.GetComponent<PlayerController> ().addScore (other.gameObject.GetComponent<EnemyController> ().score);
-				other.gameObject.GetComponent<EnemyController> ().explode ();
+				EnemyController ec = other.gameObject.GetComponent<EnemyController> ();
+				player.GetComponent<PlayerController> ().addScore (ec.score);
+				ec.updateHealth (ec.health * -1);
 			}
 			stop = true;
 		}

@@ -9,10 +9,18 @@ public class EnemyController : MonoBehaviour {
 
 	void Update(){}
 
-	public void explode(){
+	protected void explode(){
 		animateExplosion ();
 		Destroy (this.gameObject);
 	}
 
 	protected virtual void animateExplosion(){}
+
+	public void updateHealth(int update){
+		health += update;
+
+		if (health <= 0) {
+			explode ();
+		}
+	}
 }

@@ -75,7 +75,9 @@ public class PlayerController : MonoBehaviour {
 			if (!left) {
 				if (missiles > 0) {
 					lMissile = GameObject.Instantiate (missileParent);
-					lMissile.GetComponentInChildren<MissileController> ().player = this.gameObject;
+					MissileController mc = lMissile.GetComponentInChildren<MissileController> ();
+					mc.player = this.gameObject;
+					mc.setForce (0.0f, 0.0f, 1.0f * mc.speed);
 					lMissile.transform.position = new Vector3 (this.transform.position.x - 0.2f, 0.2f, 0.0f);
 					left = true;
 					missiles--;
@@ -91,7 +93,9 @@ public class PlayerController : MonoBehaviour {
 			if (!right) {
 				if (missiles > 0) {
 					rMissile = GameObject.Instantiate (missileParent);
-					rMissile.GetComponentInChildren<MissileController> ().player = this.gameObject;
+					MissileController mc = rMissile.GetComponentInChildren<MissileController> ();
+					mc.player = this.gameObject;
+					mc.setForce (0.0f, 0.0f, 1.0f * mc.speed);
 					rMissile.transform.position = new Vector3 (this.transform.position.x + 0.2f, 0.2f, 0.0f);
 					right = true;
 					missiles--;
@@ -165,10 +169,10 @@ public class PlayerController : MonoBehaviour {
 
 		if (other.gameObject.CompareTag ("Enemy")) {
 			EnemyController ec = other.GetComponent(typeof(EnemyController)) as EnemyController;
-			ec.explode ();
 
 			updateShields (ec.health * -1.0f);
 			addScore (ec.score);
+			ec.updateHealth (ec.health * -1);
 		}
 	}
 
@@ -208,9 +212,11 @@ public class PlayerController : MonoBehaviour {
 				GameObject lBullet = GameObject.Instantiate (bullet);
 				lBullet.transform.position = new Vector3 (this.transform.position.x - 0.1f, this.transform.position.y, this.transform.position.z + 0.5f);
 				lBullet.GetComponent<BulletController> ().player = this.gameObject;
+				lBullet.GetComponent<BulletController> ().setVelocity (0.0f, 0.0f, 10.0f);
 				GameObject rBullet = GameObject.Instantiate (bullet);
 				rBullet.transform.position = new Vector3 (this.transform.position.x + 0.1f, this.transform.position.y, this.transform.position.z + 0.5f);
 				rBullet.GetComponent<BulletController> ().player = this.gameObject;
+				rBullet.GetComponent<BulletController> ().setVelocity (0.0f, 0.0f, 10.0f);
 				ammo -= 2;
 				updateAmmoText ();
 				firing = true;
