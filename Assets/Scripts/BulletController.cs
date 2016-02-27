@@ -23,6 +23,7 @@ public class BulletController : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other){
+		Debug.Log ("Entered Trigger");
 		if (other.gameObject.CompareTag ("Enemy")) {
 			EnemyController ec = other.gameObject.GetComponent<EnemyController> ();
 			ec.health -= 5;
@@ -47,5 +48,6 @@ public class BulletController : MonoBehaviour {
 
 	public void setSpeed(float s){
 		this.speed = s;
+		rb.velocity = new Vector3 (0.0f, 0.0f, s);
 	}
 }

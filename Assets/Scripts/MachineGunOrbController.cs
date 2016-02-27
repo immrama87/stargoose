@@ -29,7 +29,6 @@ public class MachineGunOrbController : EnemyController {
 
 	private void fireBullets(){
 		if (!firing) {
-			Debug.Log ("Fired.");
 			GameObject _bullet = GameObject.Instantiate (bullet);
 			_bullet.transform.position = new Vector3 (transform.position.x, transform.position.y, transform.position.z - 0.5f);
 			_bullet.GetComponent<BulletController> ().setSpeed(-10.0f);
