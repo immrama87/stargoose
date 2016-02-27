@@ -11,7 +11,6 @@ public class BulletController : ProjectileController {
 	}
 
 	void OnTriggerEnter(Collider other){
-		Debug.Log ("Entered Trigger");
 		if (other.gameObject.CompareTag ("Enemy")) {
 			EnemyController ec = other.gameObject.GetComponent<EnemyController> ();
 			ec.updateHealth (-5);
