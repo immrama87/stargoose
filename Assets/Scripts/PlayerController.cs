@@ -176,6 +176,10 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
+	public float getZSpeed(){
+		return zSpeed;
+	}
+
 	void writeMissileText(){
 		missileText.text = "Missiles: " + missiles.ToString ();
 	}
