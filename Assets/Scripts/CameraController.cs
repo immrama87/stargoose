@@ -57,8 +57,9 @@ public class CameraController : MonoBehaviour {
 	}
 
 	private void animate(){
-		float offsetPercent = offsetCurve.Evaluate (animationTimeStamp);
-		float rotation = pitchCurve.Evaluate (animationTimeStamp);
+		float timePercent = animationTimeStamp / animationLength;
+		float offsetPercent = offsetCurve.Evaluate (timePercent);
+		float rotation = pitchCurve.Evaluate (timePercent);
 
 		offset = baseOffset - ((baseOffset - tightOffset) * offsetPercent);
 		transform.localEulerAngles = new Vector3 (rotation, 0.0f, 0.0f);
