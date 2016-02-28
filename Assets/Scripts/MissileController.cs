@@ -35,6 +35,11 @@ public class MissileController : ProjectileController {
 			stop = true;
 		}
 
+		if (other.gameObject.CompareTag ("Player")) {
+			other.gameObject.GetComponent<PlayerController> ().kill ();
+			stop = true;
+		}
+
 		if (stop) {
 			Destroy (this.transform.parent.gameObject);
 		}
@@ -49,5 +54,10 @@ public class MissileController : ProjectileController {
 	public void fire(){
 		fired = true;
 		engine.gameObject.SetActive (true);
+	}
+
+	public float getMass(){
+		rb = GetComponentInChildren<Rigidbody> ();
+		return rb.mass;
 	}
 }

@@ -20,38 +20,34 @@ public class MissileTurretController : TurretController {
 		if (re.IsVisibleFrom (Camera.main)) {
 			float angle = calculateAngle ();
 
-			calculateHitChance (angle);
+			fireMissile (angle);
 		}
 	}
 
-	private void calculateHitChance(float angle){
-		if(angle == 0.0f){
-			bool straight = player.transform.position.x - (player.transform.localScale.x / 2) < transform.position.x &&
-		                player.transform.position.x + (player.transform.localScale.x / 2) > transform.position.x;
+	private void fireMissile(float angle){
+		if (!fired) {
+			GameObject _missile = GameObject.Instantiate (missile);
 
-			if (straight) {
-				fireMissile ();
-			}
-		} else {
-			float x = player.transform.position.x;
-			float slope = 0.0f;
-			if (Mathf.Abs (angle) == 45.0f) {
-				slope = 1.0f;
+			float zChange = 0.5f;
+			float xChange = 0.0f;
+			if (angle != 0.0f) {
+				xChange = 0.5f;
+				if (Mathf.Abs (angle) == 90.0f) {
+					zChange = 0.0f;
+				}
 			}
 
-			float a = player.transform.position.x - transform.position.x;
-			float z = transform.position.z - (Mathf.Abs (a) * slope);
-
-			if (player.transform.position.z < z) {
-				float playerZSpeed = player.GetComponent<PlayerController> ().getZSpeed ();
-				float drawsToPoint = (z - player.transform.position.z) / playerZSpeed;
-
-				Debug.Log ("Player position: [" + player.transform.position.x + ", " + player.transform.position.z + "]; Collision Position: [" + x + ", " + z + "]; zSpeed: " + playerZSpeed + "; Draws to Collision: " + drawsToPoint);
+			if (angle < 0) {
+				xChange *= -1;
 			}
+
+			_missile.transform.position = new Vector3 (transform.position.x - xChange, transform.position.y, transform.position.z - zChange);
+			_missile.transform.localEulerAngles = new Vector3 (0.0f, angle, 0.0f);
+			MissileController mc = _missile.GetComponentInChildren<MissileController> ();
+			mc.setForce (-10.0f, angle);
+			mc.fire ();
+
+			fired = true;
 		}
-	}
-
-	private void fireMissile(){
-		GameObject _missile = GameObject.Instantiate (missile);
 	}
 }

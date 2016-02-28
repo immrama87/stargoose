@@ -206,6 +206,10 @@ public class PlayerController : MonoBehaviour {
 		shieldText.text = "Shields: " + Mathf.Round ((shields / maxShields) * 100).ToString () + "%";
 	}
 
+	public void kill(){
+		updateShields (maxShields * -1);
+	}
+
 	void updateAmmoText(){
 		ammoText.text = "Ammo: " + Mathf.Round ((ammo / maxAmmo) * 100).ToString () + "%";
 	}
