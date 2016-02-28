@@ -58,6 +58,9 @@ public class CameraController : MonoBehaviour {
 
 	private void animate(){
 		float timePercent = animationTimeStamp / animationLength;
+		if (reverse) {
+			timePercent = 1 - timePercent;
+		}
 		float offsetPercent = offsetCurve.Evaluate (timePercent);
 		float rotation = pitchCurve.Evaluate (timePercent);
 

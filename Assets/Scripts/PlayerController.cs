@@ -184,6 +184,10 @@ public class PlayerController : MonoBehaviour {
 		if (other.gameObject.CompareTag ("Tunnel Entrance")) {
 			mainCamera.GetComponent<CameraController> ().startAnimation ();
 		}
+
+		if (other.gameObject.CompareTag ("Tunnel Exit")) {
+			mainCamera.GetComponent<CameraController> ().startAnimation (true);
+		}
 	}
 
 	void OnTriggerStay(Collider other){
