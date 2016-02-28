@@ -36,8 +36,10 @@ public class MissileController : ProjectileController {
 		}
 
 		if (other.gameObject.CompareTag ("Player")) {
-			other.gameObject.GetComponent<PlayerController> ().kill ();
-			stop = true;
+			if (player == null) {
+				other.gameObject.GetComponent<PlayerController> ().kill ();
+				stop = true;
+			}
 		}
 
 		if (stop) {

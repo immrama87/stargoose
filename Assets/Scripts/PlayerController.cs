@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
 	public Text fuelText;
 	public Text ammoText;
 	public Text shieldText;
+	public Text livesText;
 
 	public float maxZSpeed;
 	public float minZSpeed;
@@ -25,6 +26,7 @@ public class PlayerController : MonoBehaviour {
 	public GameObject walls;
 
 	private Rigidbody rb;
+	private Renderer re;
 
 	private GameObject missile;
 	private int missiles;
@@ -45,11 +47,16 @@ public class PlayerController : MonoBehaviour {
 	private float zSpeed;
 	private Vector3 cameraOffset;
 
+	private int lives;
+
+	private GameObject restartVolume;
+
 	// Use this for initialization
 	void Start () {
 		lMissile = rMissile = null;
 		firing = false;
 		rb = GetComponent<Rigidbody> ();
+		re = GetComponent<Renderer> ();
 		missiles = 6;
 		writeMissileText ();
 		lightOffset = this.transform.position - spotLight.transform.position;
@@ -67,79 +74,87 @@ public class PlayerController : MonoBehaviour {
 		cameraOffset = new Vector3 (0.0f, 
 			this.transform.position.y - mainCamera.transform.position.y,
 			this.transform.position.z - mainCamera.transform.position.z);
+
+		lives = 3;
+		updateLivesText ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyDown ("left ctrl")) {
-			if (!left) {
-				if (missiles > 0) {
-					lMissile = GameObject.Instantiate (missileParent);
-					MissileController mc = lMissile.GetComponentInChildren<MissileController> ();
-					mc.player = this.gameObject;
-					mc.setForce (0.0f, 0.0f, 1.0f * mc.speed);
-					lMissile.transform.position = new Vector3 (this.transform.position.x - 0.2f, 0.2f, 0.0f);
-					left = true;
-					missiles--;
-					writeMissileText ();
+		if (re.enabled) {
+			if (Input.GetKeyDown ("left ctrl")) {
+				if (!left) {
+					if (missiles > 0) {
+						lMissile = GameObject.Instantiate (missileParent);
+						MissileController mc = lMissile.GetComponentInChildren<MissileController> ();
+						mc.player = this.gameObject;
+						mc.setForce (0.0f, 0.0f, 1.0f * mc.speed);
+						lMissile.transform.position = new Vector3 (this.transform.position.x - 0.2f, 0.2f, 0.0f);
+						left = true;
+						missiles--;
+						writeMissileText ();
+					}
+				} else {
+					lMissile.GetComponentInChildren<MissileController> ().fire ();
+					lMissile = null;
+					left = false;
 				}
-			} else {
-				lMissile.GetComponentInChildren<MissileController> ().fire();
-				lMissile = null;
-				left = false;
 			}
-		}
-		if (Input.GetKeyDown ("left alt")) {
-			if (!right) {
-				if (missiles > 0) {
-					rMissile = GameObject.Instantiate (missileParent);
-					MissileController mc = rMissile.GetComponentInChildren<MissileController> ();
-					mc.player = this.gameObject;
-					mc.setForce (0.0f, 0.0f, 1.0f * mc.speed);
-					rMissile.transform.position = new Vector3 (this.transform.position.x + 0.2f, 0.2f, 0.0f);
-					right = true;
-					missiles--;
-					writeMissileText ();
+			if (Input.GetKeyDown ("left alt")) {
+				if (!right) {
+					if (missiles > 0) {
+						rMissile = GameObject.Instantiate (missileParent);
+						MissileController mc = rMissile.GetComponentInChildren<MissileController> ();
+						mc.player = this.gameObject;
+						mc.setForce (0.0f, 0.0f, 1.0f * mc.speed);
+						rMissile.transform.position = new Vector3 (this.transform.position.x + 0.2f, 0.2f, 0.0f);
+						right = true;
+						missiles--;
+						writeMissileText ();
+					}
+				} else {
+					rMissile.GetComponentInChildren<MissileController> ().fire ();
+					rMissile = null;
+					right = false;
 				}
-			} else {
-				rMissile.GetComponentInChildren<MissileController> ().fire();
-				rMissile = null;
-				right = false;
 			}
-		}
-		if (Input.GetKey ("space")) {
-			fireBullets ();
-		}
+			if (Input.GetKey ("space")) {
+				fireBullets ();
+			}
 
-		float speedChange = Input.GetAxis ("Vertical");
-		if (speedChange > 0) {
-			zSpeed += 0.002f;
-			if (zSpeed >= maxZSpeed) {
-				zSpeed = maxZSpeed;
-			}
-		} else if (speedChange < 0) {
-			zSpeed -= 0.002f;
-			if (zSpeed <= minZSpeed) {
-				zSpeed = minZSpeed;
-			}
-		} else {
-			if (zSpeed > baseZSpeed) {
-				zSpeed -= 0.002f;
-			} else if (zSpeed < baseZSpeed) {
+			float speedChange = Input.GetAxis ("Vertical");
+			if (speedChange > 0) {
 				zSpeed += 0.002f;
+				if (zSpeed >= maxZSpeed) {
+					zSpeed = maxZSpeed;
+				}
+			} else if (speedChange < 0) {
+				zSpeed -= 0.002f;
+				if (zSpeed <= minZSpeed) {
+					zSpeed = minZSpeed;
+				}
+			} else {
+				if (zSpeed > baseZSpeed) {
+					zSpeed -= 0.002f;
+				} else if (zSpeed < baseZSpeed) {
+					zSpeed += 0.002f;
+				}
 			}
+
+			score += Mathf.RoundToInt (10 * (zSpeed / baseZSpeed));
+			updateScoreText ();
+
+			fuel -= Mathf.RoundToInt (1 * (zSpeed / baseZSpeed));
+			updateFuelText ();
+
+			this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y, this.transform.position.z + zSpeed);
+
+			mainCamera.transform.position = new Vector3 (mainCamera.transform.position.x, mainCamera.transform.position.y, this.transform.position.z - cameraOffset.z);
+			;
+			walls.transform.position = new Vector3 (walls.transform.position.x, walls.transform.position.y, this.transform.position.z);
+		} else {
+			mainCamera.transform.position = new Vector3 (mainCamera.transform.position.x, mainCamera.transform.position.y, mainCamera.transform.position.z + zSpeed);
 		}
-
-		score += Mathf.RoundToInt(10 * (zSpeed / baseZSpeed));
-		updateScoreText ();
-
-		fuel-= Mathf.RoundToInt(1 * (zSpeed / baseZSpeed));
-		updateFuelText ();
-
-		this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y, this.transform.position.z + zSpeed);
-
-		mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, this.transform.position.z - cameraOffset.z);;
-		walls.transform.position = new Vector3(walls.transform.position.x, walls.transform.position.y, this.transform.position.z);
 	}
 
 	void FixedUpdate(){
@@ -168,11 +183,17 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		if (other.gameObject.CompareTag ("Enemy")) {
-			EnemyController ec = other.GetComponent(typeof(EnemyController)) as EnemyController;
+			EnemyController ec = other.GetComponent (typeof(EnemyController)) as EnemyController;
 
 			updateShields (ec.health * -1.0f);
 			addScore (ec.score);
 			ec.updateHealth (ec.health * -1);
+		}
+	}
+
+	void OnTriggerStay(Collider other){
+		if (other.gameObject.CompareTag ("Restart Volume")) {
+			restartVolume = other.gameObject;
 		}
 	}
 
@@ -202,6 +223,10 @@ public class PlayerController : MonoBehaviour {
 		if (shields <= 0) {
 			shields = 0;
 			explode ();
+			lives--;
+			updateLivesText ();
+
+			StartCoroutine ("restart");
 		}
 		shieldText.text = "Shields: " + Mathf.Round ((shields / maxShields) * 100).ToString () + "%";
 	}
@@ -212,6 +237,10 @@ public class PlayerController : MonoBehaviour {
 
 	void updateAmmoText(){
 		ammoText.text = "Ammo: " + Mathf.Round ((ammo / maxAmmo) * 100).ToString () + "%";
+	}
+
+	void updateLivesText(){
+		livesText.text = "Lives: " + lives.ToString ();
 	}
 
 	void fireBullets(){
@@ -234,12 +263,33 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void explode(){
-		this.gameObject.SetActive (false);
+		re.enabled = false;
 		spotLight.gameObject.SetActive (false);
+	}
+
+	void nextLife(){
+		re.enabled = true;
+		spotLight.gameObject.SetActive (true);
+		updateShields (maxShields);
+		ammo = maxAmmo;
+		updateAmmoText ();
+		fuel = maxFuel;
+		updateFuelText ();
+		missiles = 6;
+		writeMissileText ();
 	}
 
 	IEnumerator reload(){
 		yield return new WaitForSeconds (0.05f);
 		firing = false;
+	}
+
+	IEnumerator restart(){
+		yield return new WaitForSeconds (1.0f);
+		if (lives >= 0) {
+			zSpeed = baseZSpeed;
+			transform.position = new Vector3 (restartVolume.transform.position.x, transform.position.y, restartVolume.transform.position.z);
+			nextLife ();
+		}
 	}
 }

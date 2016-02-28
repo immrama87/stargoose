@@ -21,6 +21,8 @@ public class MissileTurretController : TurretController {
 			float angle = calculateAngle ();
 
 			fireMissile (angle);
+		} else {
+			fired = false;
 		}
 	}
 
