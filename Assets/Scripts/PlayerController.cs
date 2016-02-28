@@ -45,7 +45,6 @@ public class PlayerController : MonoBehaviour {
 	private bool firing;
 
 	private float zSpeed;
-	private Vector3 cameraOffset;
 
 	private int lives;
 
@@ -70,10 +69,6 @@ public class PlayerController : MonoBehaviour {
 		maxAmmo = ammo = 800.0f;
 		updateAmmoText ();
 		zSpeed = baseZSpeed;
-
-		cameraOffset = new Vector3 (0.0f, 
-			this.transform.position.y - mainCamera.transform.position.y,
-			this.transform.position.z - mainCamera.transform.position.z);
 
 		lives = 3;
 		updateLivesText ();
@@ -149,11 +144,7 @@ public class PlayerController : MonoBehaviour {
 
 			this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y, this.transform.position.z + zSpeed);
 
-			mainCamera.transform.position = new Vector3 (mainCamera.transform.position.x, mainCamera.transform.position.y, this.transform.position.z - cameraOffset.z);
-			;
 			walls.transform.position = new Vector3 (walls.transform.position.x, walls.transform.position.y, this.transform.position.z);
-		} else {
-			mainCamera.transform.position = new Vector3 (mainCamera.transform.position.x, mainCamera.transform.position.y, mainCamera.transform.position.z + zSpeed);
 		}
 	}
 
@@ -188,6 +179,10 @@ public class PlayerController : MonoBehaviour {
 			updateShields (ec.health * -1.0f);
 			addScore (ec.score);
 			ec.updateHealth (ec.health * -1);
+		}
+
+		if (other.gameObject.CompareTag ("Tunnel Entrance")) {
+			mainCamera.GetComponent<CameraController> ().startAnimation ();
 		}
 	}
 
