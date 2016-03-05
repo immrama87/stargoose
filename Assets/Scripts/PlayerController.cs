@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using AssemblyCSharp;
 
 public class PlayerController : MonoBehaviour {
 
@@ -13,10 +14,25 @@ public class PlayerController : MonoBehaviour {
 
 	public Text missileText;
 	public Text scoreText;
-	public Text fuelText;
-	public Text ammoText;
-	public Text shieldText;
 	public Text livesText;
+
+	public Image fuelImage;
+	public string fuelFullTexture;
+	public string fuelEmptyTexture;
+
+	private ImageStatusIndicator fuelStatus;
+
+	public Image ammoImage;
+	public string ammoFullTexture;
+	public string ammoEmptyTexture;
+
+	private ImageStatusIndicator ammoStatus;
+
+	public Image shieldsImage;
+	public string shieldsFullTexture;
+	public string shieldsEmptyTexture;
+
+	private ImageStatusIndicator shieldsStatus;
 
 	public float maxZSpeed;
 	public float minZSpeed;
@@ -63,15 +79,20 @@ public class PlayerController : MonoBehaviour {
 		updateScoreText ();
 
 		maxFuel = fuel = 10000.0f;
-		updateFuelText ();
 		maxShields = shields = 500.0f;
+		shieldsStatus = new ImageStatusIndicator (shieldsImage, shieldsFullTexture, shieldsEmptyTexture);
 		updateShields (0.0f);
 		maxAmmo = ammo = 800.0f;
+		ammoStatus = new ImageStatusIndicator (ammoImage, ammoFullTexture, ammoEmptyTexture);
 		updateAmmoText ();
 		zSpeed = baseZSpeed;
 
 		lives = 3;
 		updateLivesText ();
+
+		fuelStatus = new ImageStatusIndicator (fuelImage, fuelFullTexture, fuelEmptyTexture);
+		//fuelStatus.draw (1.0f);
+		updateFuelStatus ();
 	}
 	
 	// Update is called once per frame
@@ -140,7 +161,7 @@ public class PlayerController : MonoBehaviour {
 			updateScoreText ();
 
 			fuel -= Mathf.RoundToInt (1 * (zSpeed / baseZSpeed));
-			updateFuelText ();
+			updateFuelStatus ();
 
 			this.transform.position = new Vector3 (this.transform.position.x, this.transform.position.y, this.transform.position.z + zSpeed);
 
@@ -213,8 +234,8 @@ public class PlayerController : MonoBehaviour {
 		scoreText.text = score.ToString ();
 	}
 
-	void updateFuelText(){
-		fuelText.text = "Fuel: " + Mathf.Round ((fuel / maxFuel) * 100).ToString () + "%";
+	void updateFuelStatus(){
+		fuelStatus.draw (fuel / maxFuel);
 	}
 
 	public void updateShields(float update){
@@ -227,7 +248,7 @@ public class PlayerController : MonoBehaviour {
 
 			StartCoroutine ("restart");
 		}
-		shieldText.text = "Shields: " + Mathf.Round ((shields / maxShields) * 100).ToString () + "%";
+		shieldsStatus.draw (shields / maxShields);
 	}
 
 	public void kill(){
@@ -235,7 +256,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void updateAmmoText(){
-		ammoText.text = "Ammo: " + Mathf.Round ((ammo / maxAmmo) * 100).ToString () + "%";
+		ammoStatus.draw (ammo / maxAmmo);
 	}
 
 	void updateLivesText(){
@@ -273,7 +294,7 @@ public class PlayerController : MonoBehaviour {
 		ammo = maxAmmo;
 		updateAmmoText ();
 		fuel = maxFuel;
-		updateFuelText ();
+		updateFuelStatus ();
 		missiles = 6;
 		writeMissileText ();
 	}

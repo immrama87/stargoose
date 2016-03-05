@@ -25,25 +25,27 @@ public class MissileController : ProjectileController {
 	}
 
 	void OnTriggerEnter(Collider other){
-		bool stop = false;
-		if (other.gameObject.CompareTag ("Enemy")) {
-			if (player != null) {
-				EnemyController ec = other.gameObject.GetComponent<EnemyController> ();
-				player.GetComponent<PlayerController> ().addScore (ec.score);
-				ec.updateHealth (ec.health * -1);
-			}
-			stop = true;
-		}
-
-		if (other.gameObject.CompareTag ("Player")) {
-			if (player == null) {
-				other.gameObject.GetComponent<PlayerController> ().kill ();
+		if (fired) {
+			bool stop = false;
+			if (other.gameObject.CompareTag ("Enemy")) {
+				if (player != null) {
+					EnemyController ec = other.gameObject.GetComponent<EnemyController> ();
+					player.GetComponent<PlayerController> ().addScore (ec.score);
+					ec.updateHealth (ec.health * -1);
+				}
 				stop = true;
 			}
-		}
 
-		if (stop) {
-			Destroy (this.transform.parent.gameObject);
+			if (other.gameObject.CompareTag ("Player")) {
+				if (player == null) {
+					other.gameObject.GetComponent<PlayerController> ().kill ();
+					stop = true;
+				}
+			}
+
+			if (stop) {
+				Destroy (this.transform.parent.gameObject);
+			}
 		}
 	}
 
