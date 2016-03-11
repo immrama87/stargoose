@@ -21,7 +21,15 @@ public class BulletController : ProjectileController {
 			pc.updateShields (-5.0f);
 		}
 
-		if (!other.gameObject.CompareTag ("Missile Refill")) {
+		bool kill = true;
+
+		if (other.gameObject.CompareTag ("Missile Refill") ||
+				other.gameObject.CompareTag("Tunnel Entrance") ||
+				other.gameObject.CompareTag("Tunnel Exit")) {
+			kill = false;
+		}
+
+		if (kill) {
 			Destroy (this.gameObject);
 		}
 	}
